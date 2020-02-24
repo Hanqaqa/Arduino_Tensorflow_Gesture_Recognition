@@ -71,7 +71,7 @@ Instead of naming the target variable as `target = ("Punch","Upper")` and then e
 | 0,863 0,785...| 2 |
 | 0,583 0,135...| 2 |
 
-Because the Neural Network could interpret that a number in the middle, like 1.5, makes sense, therefore turning a categorical variable, like Punch, Upper... into a numerical variable. So our error function the *Mean Squared Error* takes that into account when we hot encode the data.
+Because the Neural Network could interpret that a number in the middle, like 1.5, makes sense, therefore turning a categorical variable, like Punch, Upper... into a numerical variable, like height or stock value. So our error function the *Mean Squared Error* takes that into account when we hot encode the data.
 
 We could also use another function like the *Sparse Categorical Crossentropy* which already takes into account a variable with different categorical values.
 
@@ -79,5 +79,15 @@ We also have to define a Neural Network Architecture. This time we used a simple
 
 ## IMU Classifier
 
-Lastly we simply put the `model.h` we obtained in the last step in our working folder. Compile the `.ino` program and upload it into the Arduino and the program is ready to go.
+Lastly we simply put the `model.h` we obtained in the last step in our working folder. Compile the `.ino` program and upload it into the Arduino and the program is ready to go. [Youtube video](https://www.youtube.com/watch?v=UlTW5wlSB3c)
 
+Some considerations to take into account are:
+
+- The Neural Network is very sensitive to the position, inclination, velocity and acceleration of the movements you record. So try to keep the Arduino in the same spot during the recording and later during the predictions
+
+- TensorFlow Lite in microcontrollers can deal with much more complex Neural Networks, like several layers deep and complex layers such as convolutional ones. But keep in mind that bigger isn't always better. As there are two main problems with this approach:
+
+    - Training will be slower, and the Neural Network might not find a local minima and never converge. Outputting worse than random results
+    - Compiling will take longer and take up more space in the microcontroller.
+
+- Even though processing a Neural Network is very resource heavy on the microcontroller. The measured current draw between the microcontroller on idle (17 mA) and using a Neural Net (21 mA) was a 20% difference, although the device I used for measuring has a precission of +- 2 mA, so results may not be all that accurate.
