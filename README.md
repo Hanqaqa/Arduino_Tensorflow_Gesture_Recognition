@@ -7,7 +7,7 @@ In this [youtube video](https://www.youtube.com/watch?v=UlTW5wlSB3c) we can see 
 
 This project takes inspiration from the one found in the Arduino Blog about training your own [Gesture Recognition Classifier](https://blog.arduino.cc/2019/10/15/get-started-with-machine-learning-on-arduino/)
 
-Each movement was first captured 10 times using the first script `IMU_Capture` with the Arduino IDE and then saving that gyro data into different `.csv` file.
+Each movement was first captured 10 times using the first script `IMU_Capture` with the Arduino IDE and then saving that gyro and accelerometer data into different `.csv` file.
 
 Then the Neural Network was trained on my desktop computer using the `Tensorflow_to_TensorflowLite_Converter` which uses the `.csv` files we obtained before, as training examples for the Neural Network. When we have trained the Network, we convert it to a `model.h` file that can be compiled for an Arduino or any other Microcontroller, such as an ESP32.
 
@@ -45,13 +45,39 @@ Now we are ready to get into the first script.
 
 This short script simply starts recording all the gyro and accelerometer values into a comma separated format once the device goes over a certain `accelerationThreshold` defined at the beginning. Several tests have determined that `1.55` is a good empirical value to start recording movements with a certain force.
 
-Once the device has gone over that threshold it will start outputting gyro and accelerommeter data at 100Hz for 119 samples in the Serial Port, found in **Tools > Port > Arduino Nano 33 BLE**. Then it will stop outputting samples into the serial port until another sudden movement goes over that threshold.
+Once the device has gone over that threshold it will start outputting gyro and accelerometer data at 100Hz for 119 samples in the Serial Port, found in **Tools > Port > Arduino Nano 33 BLE**. Then it will stop outputting samples into the serial port until another sudden movement goes over that threshold.
 
 We will record 10 instances of each of the movements. We will copy what we get in the Serial port and copy it into different `.csv` files, one file for each movement. Those files have already been created and copied into the second part of this tutorial.
 
 ## 2 Tensorflow to TensorflowLite Converter
 
-In this part we can either train online the Neural Netwrok using a [Colab created by Sandeep Mistry](https://colab.research.google.com/github/arduino/ArduinoTensorFlowLiteTutorials/blob/master/GestureToEmoji/arduino_tinyml_workshop.ipynb) or use the slightly modified version I provide and train it in our machine.
+In this part we can either train online the Neural Netwrok using a [Colab created by Sandeep Mistry](https://colab.research.google.com/github/arduino/ArduinoTensorFlowLiteTutorials/blob/master/GestureToEmoji/arduino_tinyml_workshop.ipynb) or use the slightly modified version I provide and train it in our machine with Jupyter Notebook. The proccess is easily explained in both the Notebooks.
 
+Although some of the highlights of the Notebook could be that we "One Hot Encode" the dataset, that means labelling the data like this
 
+| Data          | Punch         | Upper |
+| ------------- |:-------------:| -----:|
+| 0,424 0,534...| 1 | 0 |
+| 0,574 0,153...| 1 | 0 |
+| 0,863 0,785...| 0 | 1 |
+| 0,583 0,135...| 0 | 1 |
+
+Instead of naming the target variable as `target = ("Punch","Upper")` and then encoding the data like this
+
+| Data          | Target         |
+| ------------- |:-------------:|
+| 0,424 0,534...| 1 |
+| 0,574 0,153...| 1 |
+| 0,863 0,785...| 2 |
+| 0,583 0,135...| 2 |
+
+Because the Neural Network could interpret that a number in the middle, like 1.5, makes sense, therefore turning a categorical variable, like Punch, Upper... into a numerical variable. So our error function the *Mean Squared Error* takes that into account when we hot encode the data.
+
+We could also use another function like the *Sparse Categorical Crossentropy* which already takes into account a variable with different categorical values.
+
+We also have to define a Neural Network Architecture. This time we used a simple Neural Network with two Dense Layers-
+
+## IMU Classifier
+
+Lastly we simply put the `model.h` we obtained in the last step in our working folder. Compile the `.ino` program and upload it into the Arduino and the program is ready to go.
 
